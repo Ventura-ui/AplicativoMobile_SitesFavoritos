@@ -10,7 +10,7 @@ import br.edu.ifsp.dmo.sitesfavoritos.databinding.ItemviewLayoutBinding
 import br.edu.ifsp.dmo.sitesfavoritos.model.Site
 import br.edu.ifsp.dmo.sitesfavoritos.view.listeners.SiteItemClickListener
 
-class SiteAdapter(val context: Context, val dataset: List<Site>, val listener: SiteItemClickListener) : RecyclerView.Adapter<SiteAdapter.ViewHolder>() {
+class SiteAdapter(val context: Context, val dataset: MutableList<Site>, val listener: SiteItemClickListener) : RecyclerView.Adapter<SiteAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view){
         val binding: ItemviewLayoutBinding = ItemviewLayoutBinding.bind(view)

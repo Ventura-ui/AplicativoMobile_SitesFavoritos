@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.edu.ifsp.dmo.sitesfavoritos.R
@@ -14,23 +15,28 @@ import br.edu.ifsp.dmo.sitesfavoritos.databinding.AddsitesLayoutBinding
 import br.edu.ifsp.dmo.sitesfavoritos.model.Site
 import br.edu.ifsp.dmo.sitesfavoritos.view.adapters.SiteAdapter
 import br.edu.ifsp.dmo.sitesfavoritos.view.listeners.SiteItemClickListener
+import br.edu.ifsp.dmo.sitesfavoritos.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity(), SiteItemClickListener {
 
     private lateinit var binding: ActivityMainBinding
-    private var dataSource = ArrayList<Site>()
+    private lateinit var viewModel: MainViewModel
+    private lateinit var adapter: SiteAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+
         configListeners()
         configRecyclerView()
+        congigObservers()
     }
 
     override fun clickSiteItem(position: Int) {
-        val site = dataSource[position]
+        val site = adapter.dataset[position]
         val mIntent  = Intent(Intent.ACTION_VIEW)
 
         mIntent.setData(Uri.parse("http://" + site.url))
@@ -38,16 +44,11 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
     }
 
     override fun clickHeartSiteItem(position: Int) {
-        val site = dataSource[position]
-
-        site.favorito = !site.favorito
-        notifyAdapter()
+        viewModel.favoritarOuDesfavoritar(position)
     }
 
     override fun clickExcluirSiteItem(position: Int) {
-        dataSource.removeAt(position)
-
-        notifyAdapter()
+        viewModel.removerSite(position)
     }
 
     private fun configListeners(){
@@ -55,7 +56,7 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
     }
 
     private fun configRecyclerView(){
-        val adapter = SiteAdapter(this, dataSource, this)
+        adapter = SiteAdapter(this, ArrayList(), this)
 
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
 
@@ -63,9 +64,12 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
         binding.recyclerviewSites.adapter = adapter
     }
 
-    private fun notifyAdapter(){
-        val adapter = binding.recyclerviewSites.adapter
-        adapter?.notifyDataSetChanged()
+    private fun congigObservers(){
+        viewModel.sites.observe(this, { sites ->
+            adapter.dataset.clear()
+            sites?.let { adapter.dataset.addAll(it) }
+            adapter.notifyDataSetChanged()
+        })
     }
 
     private fun handleAddSite(){
@@ -77,13 +81,11 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
             .setTitle(R.string.novo_site)
             .setPositiveButton(R.string.salvar,
                 DialogInterface.OnClickListener{dialog, which ->
-                    dataSource.add(
-                        Site(
+                    val novoSite = Site(
                             bindingDialog.edittextApelido.text.toString(),
                             bindingDialog.edittextUrl.text.toString()
-                        )
                     )
-                    notifyAdapter()
+                    viewModel.addSite(novoSite)
                     dialog.dismiss()
                 })
             .setNegativeButton(R.string.cancelar,
