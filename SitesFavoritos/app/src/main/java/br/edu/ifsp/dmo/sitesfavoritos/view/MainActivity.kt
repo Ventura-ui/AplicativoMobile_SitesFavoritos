@@ -44,6 +44,12 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
         notifyAdapter()
     }
 
+    override fun clickExcluirSiteItem(position: Int) {
+        dataSource.removeAt(position)
+
+        notifyAdapter()
+    }
+
     private fun configListeners(){
         binding.buttonAdd.setOnClickListener{handleAddSite()}
     }

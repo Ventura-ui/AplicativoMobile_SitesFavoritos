@@ -40,6 +40,8 @@ class SiteAdapter(val context: Context, val dataset: List<Site>, val listener: S
         holder.binding.imgHeart.setOnClickListener{listener.clickHeartSiteItem(position)}
 
         holder.binding.layoutItem.setOnClickListener{listener.clickSiteItem(position)}
+
+        holder.binding.imgExcluir.setOnClickListener{listener.clickExcluirSiteItem(position)}
     }
 
 

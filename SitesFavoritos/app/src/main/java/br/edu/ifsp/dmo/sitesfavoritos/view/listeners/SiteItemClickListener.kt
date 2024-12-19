@@ -6,4 +6,6 @@ interface SiteItemClickListener {
 
     fun clickHeartSiteItem(position: Int)
 
+    fun clickExcluirSiteItem(position: Int)
+
 }
